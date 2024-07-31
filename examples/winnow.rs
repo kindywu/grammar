@@ -9,7 +9,7 @@ use http::Method;
 use winnow::{
     ascii::{digit1, space0, space1},
     combinator::{alt, delimited, separated},
-    token::{take_till, take_until, take_while},
+    token::{take_till, take_until},
     PResult, Parser,
 };
 
@@ -106,16 +106,18 @@ fn parse_proto(input: &mut &str) -> PResult<HttpProto> {
 }
 
 fn parse_status(input: &mut &str) -> PResult<u16> {
-    let ret = take_while(3, |c: char| c.is_ascii_digit())
-        .parse_to()
-        .parse_next(input)?;
+    // let ret = take_while(3, |c: char| c.is_ascii_digit())
+    //     .parse_to()
+    //     .parse_next(input)?;
+    let ret = digit1.parse_to().parse_next(input)?;
     Ok(ret)
 }
 
 fn parse_body_bytes(input: &mut &str) -> PResult<u64> {
-    let ret = take_while(1.., |c: char| c.is_ascii_digit())
-        .parse_to()
-        .parse_next(input)?;
+    // let ret = take_while(1.., |c: char| c.is_ascii_digit())
+    //     .parse_to()
+    //     .parse_next(input)?;
+    let ret = digit1.parse_to().parse_next(input)?;
     Ok(ret)
 }
 
