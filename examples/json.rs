@@ -15,7 +15,7 @@ fn main() -> Result<()> {
         "name": "John Doe",
         "age": 30,
         "is_student": false,
-        "marks": [90.0, -80.0, 85],
+        "marks": [90.0, -80.0, 85, 11e-1],
         "address": {
             "city": "New York",
             "zip": 10001
@@ -43,13 +43,13 @@ fn parse_bool(input: &mut &str) -> PResult<bool> {
 }
 
 fn parse_num(input: &mut &str) -> PResult<Num> {
-    let num: i64 = dec_int(input)?;
-    let frac: PResult<f64> = float(input);
-    if let Ok(mut frac) = frac {
-        frac = if num > 0 { frac } else { -frac };
-        Ok(Num::Float(num as f64 + frac))
-    } else {
+    let ret: (&str, i64) = dec_int.parse_peek(*input)?;
+    if ret.0.is_empty() {
+        let num: i64 = dec_int(input)?;
         Ok(Num::Int(num))
+    } else {
+        let num: f64 = float(input)?;
+        Ok(Num::Float(num))
     }
 }
 

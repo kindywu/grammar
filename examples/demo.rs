@@ -1,21 +1,27 @@
 use winnow::{
     ascii::{dec_int, float},
-    combinator::alt,
     PResult, Parser,
 };
 
 fn main() {
-    let inputs = vec![r#"19.9"#, r#"-199"#, r#"19.9"#, r#"-19.9"#];
+    let inputs = vec![r#"199"#, r#"-199"#, r#"19.9"#, r#"-19.9"#, "11e-2"];
 
     for input in inputs {
         let input = &mut (&*input);
-        let ret = parse_number(input);
+        let ret = parse_num(input);
         println!("{:?}", ret);
     }
 }
 
-fn parse_number(input: &mut &str) -> PResult<Num> {
-    alt((float.map(Num::Float), dec_int.map(Num::Int))).parse_next(input)
+fn parse_num(input: &mut &str) -> PResult<Num> {
+    let ret: (&str, i64) = dec_int.parse_peek(*input)?;
+    if ret.0.is_empty() {
+        let num: i64 = dec_int(input)?;
+        Ok(Num::Int(num))
+    } else {
+        let num: f64 = float(input)?;
+        Ok(Num::Float(num))
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
