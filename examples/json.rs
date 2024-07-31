@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use anyhow::{anyhow, Result};
 use winnow::{
     ascii::{dec_int, float, multispace0},
-    combinator::{alt, delimited, separated, separated_pair},
+    combinator::{alt, delimited, opt, separated, separated_pair},
     token::take_until,
     PResult, Parser,
 };
@@ -75,11 +75,29 @@ macro_rules! sep_with_space {
     ($delimiter:expr) => {
         seq!(multispace0, $delimiter, multispace0)
     };
+    ($delimiter1:expr, $($delimiter:expr),+) => {
+        seq!(
+            multispace0,
+            opt($delimiter1),
+            multispace0,
+            sep_with_space!(@inner $($delimiter),+)
+        )
+    };
+    (@inner $delimiter:expr) => {
+        seq!($delimiter, multispace0)
+    };
+    (@inner $delimiter1:expr, $($delimiter:expr),+) => {
+        seq!(
+            opt($delimiter1),
+            multispace0,
+            sep_with_space!(@inner $($delimiter),+)
+        )
+    };
 }
 
 fn parse_array(input: &mut &str) -> PResult<Vec<JsonValue>> {
     let sep1 = sep_with_space!("[");
-    let sep2 = sep_with_space!("]");
+    let sep2 = sep_with_space!(",", "]");
     let sep_comma = sep_with_space!(",");
     let parse_value = separated(0.., parse_value, sep_comma);
     delimited(sep1, parse_value, sep2).parse_next(input)
@@ -87,7 +105,7 @@ fn parse_array(input: &mut &str) -> PResult<Vec<JsonValue>> {
 
 fn parse_object(input: &mut &str) -> PResult<HashMap<String, JsonValue>> {
     let sep1 = sep_with_space!("{");
-    let sep2 = sep_with_space!("}");
+    let sep2 = sep_with_space!(",", "}");
     let sep_comma = sep_with_space!(",");
     let sep_colon = sep_with_space!(":");
 
@@ -194,35 +212,51 @@ mod tests {
 
     #[test]
     fn test_parse_object() -> PResult<()> {
-        let input = r#"{
+        let inputs = vec![
+            r#"{
         "name":"kindywu",
         "age":30,
         "score":30.4
-        }"#;
-        let mut map = HashMap::new();
+        }"#,
+            r#"{
+        "name":"kindywu",
+        "age":30,
+        "score":30.4,
+        }"#,
+        ];
 
+        let mut map = HashMap::new();
         map.insert("name".to_string(), JsonValue::String("kindywu".to_owned()));
         map.insert("age".to_string(), JsonValue::Number(Num::Int(30)));
         map.insert("score".to_string(), JsonValue::Number(Num::Float(30.4)));
 
-        let result = parse_object(&mut (&*input))?;
-        assert_eq!(result, map);
+        for input in inputs {
+            let result = parse_object(&mut (&*input))?;
+            assert_eq!(result, map);
+        }
+
         Ok(())
     }
 
     #[test]
     fn test_parse_array() -> PResult<()> {
-        let input = r#" ["kindy", 44, 33.33, true, null] "#;
-        let mut arr = Vec::new();
+        let inputs = vec![
+            r#" ["kindy", 44, 33.33, true, null] "#,
+            r#" ["kindy", 44, 33.33, true, null, ] "#,
+        ];
 
+        let mut arr = Vec::new();
         arr.push(JsonValue::String("kindy".to_string()));
         arr.push(JsonValue::Number(Num::Int(44)));
         arr.push(JsonValue::Number(Num::Float(33.33)));
         arr.push(JsonValue::Bool(true));
         arr.push(JsonValue::Null);
 
-        let result = parse_array(&mut (&*input))?;
-        assert_eq!(result, arr);
+        for input in inputs {
+            let result = parse_array(&mut (&*input))?;
+            assert_eq!(result, arr);
+        }
+
         Ok(())
     }
 }
