@@ -9,5 +9,7 @@ edition = "2021"
 anyhow = "1.0.86"
 chrono = "0.4.38"
 http = "1.1.0"
+pest = { version = "2.7.11", features = ["pretty-print"] }
+pest_derive = "2.7.11"
 regex = "1.10.5"
 winnow = { version = "0.6.16", features = ["simd"] }
