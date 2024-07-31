@@ -15,7 +15,7 @@ use winnow::{
 
 fn main() -> Result<()> {
     let s = r#"93.180.71.3 - - [17/May/2015:08:05:32 +0000] "GET /downloads/product_1 HTTP/1.1" 304 0 "-" "Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.21)""#;
-    let log = parse_nginx_log(s).or_else(|e| Err(anyhow!("{}", e)))?;
+    let log = parse_nginx_log(s).map_err(|e| anyhow!("{}", e))?;
     println!("{:?}", log);
     Ok(())
 }
@@ -149,7 +149,6 @@ struct NginxLog {
     user_agent: String,
 }
 
-#[allow(unused)]
 #[derive(Debug, PartialEq, Eq)]
 enum HttpProto {
     HTTP1_0,

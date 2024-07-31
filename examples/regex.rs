@@ -16,7 +16,7 @@ fn main() -> Result<()> {
     let ip = captures.name("ip").unwrap().as_str().parse::<Ipv4Addr>()?;
     println!("{ip}");
     let format = "%d/%b/%Y:%H:%M:%S %z";
-    let date = DateTime::parse_from_str(captures.name("date").unwrap().as_str(), &format)?;
+    let date = DateTime::parse_from_str(captures.name("date").unwrap().as_str(), format)?;
     println!("{date}");
 
     let method = Method::from_bytes(captures.name("method").unwrap().as_str().as_bytes())?;
