@@ -156,17 +156,6 @@ enum HttpProto {
     HTTP3_0,
 }
 
-impl From<&str> for HttpProto {
-    fn from(value: &str) -> Self {
-        match value {
-            "HTTP/1.1" => HttpProto::HTTP1_1,
-            "HTTP/2.0" => HttpProto::HTTP2_0,
-            "HTTP/3.0" => HttpProto::HTTP3_0,
-            _ => HttpProto::HTTP1_0,
-        }
-    }
-}
-
 impl FromStr for HttpProto {
     type Err = anyhow::Error;
 
