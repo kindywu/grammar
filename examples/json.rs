@@ -42,19 +42,6 @@ fn parse_bool(input: &mut &str) -> PResult<bool> {
     alt(("true", "false")).parse_to().parse_next(input)
 }
 
-#[allow(unused)]
-fn parse_i64(input: &mut &str) -> PResult<i64> {
-    // let sign = opt("-").map(|s| s.is_some()).parse_next(input)?;
-    // let num = digit1.parse_to::<i64>().parse_next(input)?;
-    // Ok(if sign { -num } else { num })
-    dec_int(input)
-}
-
-#[allow(unused)]
-fn parse_f64(input: &mut &str) -> PResult<f64> {
-    float(input)
-}
-
 fn parse_num(input: &mut &str) -> PResult<Num> {
     let num: i64 = dec_int(input)?;
     let frac: PResult<f64> = float(input);
@@ -71,13 +58,6 @@ fn parse_string(input: &mut &str) -> PResult<String> {
     Ok(str.to_owned())
 }
 
-#[macro_export]
-macro_rules! sep_with_space {
-    ($delimiter:expr) => {
-        seq!(multispace0, $delimiter, multispace0)
-    };
-}
-
 fn parse_value(input: &mut &str) -> PResult<JsonValue> {
     alt((
         parse_null.value(JsonValue::Null),
@@ -88,6 +68,13 @@ fn parse_value(input: &mut &str) -> PResult<JsonValue> {
         parse_object.map(JsonValue::Object),
     ))
     .parse_next(input)
+}
+
+#[macro_export]
+macro_rules! sep_with_space {
+    ($delimiter:expr) => {
+        seq!(multispace0, $delimiter, multispace0)
+    };
 }
 
 fn parse_array(input: &mut &str) -> PResult<Vec<JsonValue>> {
@@ -109,14 +96,12 @@ fn parse_object(input: &mut &str) -> PResult<HashMap<String, JsonValue>> {
     delimited(sep1, parse_kv, sep2).parse_next(input)
 }
 
-#[allow(unused)]
 #[derive(Debug, Clone, PartialEq)]
 enum Num {
     Int(i64),
     Float(f64),
 }
 
-#[allow(unused)]
 #[derive(Debug, Clone, PartialEq)]
 enum JsonValue {
     Null,
@@ -149,32 +134,6 @@ mod tests {
         let input = "false";
         let result = parse_bool(&mut (&*input))?;
         assert!(!result);
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_parse_i64() -> PResult<()> {
-        let input = "100";
-        let result = parse_i64(&mut (&*input))?;
-        assert_eq!(result, 100);
-
-        let input = "-199";
-        let result = parse_i64(&mut (&*input))?;
-        assert_eq!(result, -199);
-
-        Ok(())
-    }
-
-    #[test]
-    fn test_parse_f64() -> PResult<()> {
-        let input = "100.99";
-        let result = parse_f64(&mut (&*input))?;
-        assert_eq!(result, 100.99);
-
-        let input = "-199.99";
-        let result = parse_f64(&mut (&*input))?;
-        assert_eq!(result, -199.99);
 
         Ok(())
     }
