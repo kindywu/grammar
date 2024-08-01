@@ -1,0 +1,25 @@
+WHITESPACE = _{ " " | "\t" | "\n" | "\r" }
+
+json = _{ array | object }
+
+object = {"{" ~ pair ~ ("," ~ pair)* ~ "}"}
+
+pair = { string ~ ":" ~ value }
+
+array = { "[" ~ value ~ ("," ~ value)* ~ "]" }
+
+value = { null | bool | number | string | object | array }
+
+null = { "null" }
+
+bool = { "true" | "false" }
+
+number = { "-"? ~ int ~ frac* ~ exp?}
+
+int = { "0" | ASCII_NONZERO_DIGIT ~ ASCII_DIGIT* }
+frac = { "." ~ASCII_DIGIT+ }
+exp = { ("e"|"E")~ ("+"|"-") ~ ASCII_DIGIT+}
+
+string = _{"\"" ~ chars ~ "\""}
+
+chars = { ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_")* }

@@ -1,3 +1,0 @@
-WHITESPACE = _{ " " | "\t" | "\n" | "\r" }
-
-json = _{ object | array }
