@@ -44,7 +44,7 @@ fn parse_bool(input: &mut &str) -> PResult<bool> {
 
 fn parse_num(input: &mut &str) -> PResult<Num> {
     let (remain, _): (&str, i64) = dec_int.parse_peek(*input)?;
-    if !remain.starts_with('.') {
+    if !remain.starts_with(['.', 'e', 'E']) {
         let num: i64 = dec_int(input)?;
         Ok(Num::Int(num))
     } else {
@@ -170,6 +170,11 @@ mod tests {
         let input = "-199.8";
         assert_eq!(parse_num(&mut (&*input)), Ok(Num::Float(-199.8)));
 
+        let input = "11e2";
+        assert_eq!(parse_num(&mut (&*input)), Ok(Num::Float(1100.0)));
+
+        let input = "11E-2";
+        assert_eq!(parse_num(&mut (&*input)), Ok(Num::Float(0.11)));
         Ok(())
     }
 

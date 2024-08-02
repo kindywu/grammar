@@ -15,7 +15,7 @@ fn main() {
 
 fn parse_num(input: &mut &str) -> PResult<Num> {
     let (remain, _): (&str, i64) = dec_int.parse_peek(*input)?;
-    if !remain.starts_with('.') {
+    if !remain.starts_with(['.', 'e', 'E']) {
         let num: i64 = dec_int(input)?;
         Ok(Num::Int(num))
     } else {
