@@ -59,3 +59,10 @@ repos:
         language: rust
         files: \.rs$
         pass_filenames: false
+      - id: cargo-test-example
+        name: cargo test --examples
+        description: unit test for the project
+        entry: bash -c 'cargo nextest run --all-features'
+        language: rust
+        files: \.rs$
+        pass_filenames: false
