@@ -43,8 +43,8 @@ fn parse_bool(input: &mut &str) -> PResult<bool> {
 }
 
 fn parse_num(input: &mut &str) -> PResult<Num> {
-    let ret: (&str, i64) = dec_int.parse_peek(*input)?;
-    if ret.0.is_empty() {
+    let (remain, _): (&str, i64) = dec_int.parse_peek(*input)?;
+    if !remain.starts_with('.') {
         let num: i64 = dec_int(input)?;
         Ok(Num::Int(num))
     } else {
@@ -158,8 +158,8 @@ mod tests {
 
     #[test]
     fn test_parse_num() -> PResult<()> {
-        let input = "199 ";
-        assert_eq!(parse_num(&mut (&*input)), Ok(Num::Int(199)));
+        let input = "99 ";
+        assert_eq!(parse_num(&mut (&*input)), Ok(Num::Int(99)));
 
         let input = "-199";
         assert_eq!(parse_num(&mut (&*input)), Ok(Num::Int(-199)));
@@ -240,6 +240,10 @@ mod tests {
 
     #[test]
     fn test_parse_array() -> PResult<()> {
+        let input = r#"[]"#;
+        let result = parse_array(&mut (&*input))?;
+        assert_eq!(Vec::<JsonValue>::new(), result);
+
         let inputs = vec![
             r#" ["kindy", 44, 33.33, true, null] "#,
             r#" ["kindy", 44, 33.33, true, null, ] "#,

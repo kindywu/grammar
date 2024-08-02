@@ -4,7 +4,7 @@ use winnow::{
 };
 
 fn main() {
-    let inputs = vec![r#"199"#, r#"-199"#, r#"19.9"#, r#"-19.9"#, "11e-2"];
+    let inputs = vec![r#"199 "#, r#"-199"#, r#"19.9"#, r#"-19.9"#, "11e-2"];
 
     for input in inputs {
         let input = &mut (&*input);
@@ -14,8 +14,8 @@ fn main() {
 }
 
 fn parse_num(input: &mut &str) -> PResult<Num> {
-    let ret: (&str, i64) = dec_int.parse_peek(*input)?;
-    if ret.0.is_empty() {
+    let (remain, _): (&str, i64) = dec_int.parse_peek(*input)?;
+    if !remain.starts_with('.') {
         let num: i64 = dec_int(input)?;
         Ok(Num::Int(num))
     } else {
